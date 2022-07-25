@@ -15,6 +15,7 @@ function validarFormulario(e){
         return;
     }
 
+    buscarImagenes(terminoBusqueda);
 
 }
 
@@ -34,4 +35,19 @@ function mostrarAlerta(mensaje){
             alerta.remove();
         }, 3000);
     }
+}
+
+function buscarImagenes(termino){
+    const key ='28843211-a192f32985e751d0d7f82d4ba'; 
+    const url =`https://pixabay.com/api/videos/?key=${key}&q=${termino}`
+
+    fetch(url)
+        .then(respuesta => respuesta.json())
+        .then(resultado =>{
+            mostrarImagenes(resultado.hits);
+        })
+}
+
+function mostrarImagenes(imagenes) {
+    console.log(imagenes);
 }
