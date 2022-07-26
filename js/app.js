@@ -1,7 +1,11 @@
 const resultado = document.querySelector('#resultado');
 const formulario = document.querySelector('#formulario');
+const paginacionDiv = document.querySelector('#paginacion');
 const registrosPorPagina = 40;
+
 let totalPaginas;
+let iterador; 
+let paginaActual= 1;
 
 window.onload =() =>{
     formulario.addEventListener('submit',validarFormulario);
@@ -17,7 +21,7 @@ function validarFormulario(e){
         return;
     }
 
-    buscarImagenes(terminoBusqueda);
+    buscarImagenes();
 
 }
 
@@ -39,10 +43,10 @@ function mostrarAlerta(mensaje){
     }
 }
 
-function buscarImagenes(termino){
+function buscarImagenes(){
     const key ='28843211-a192f32985e751d0d7f82d4ba'; 
-   // const url =`https://pixabay.com/api/videos/?key=${key}&q=${termino}`
-   const url = `https://pixabay.com/api/?key=${key}&q=${termino}&image_type=photo&per_page=100` 
+    const termino = document.querySelector('#termino').value;
+    const url = `https://pixabay.com/api/?key=${key}&q=${termino}&image_type=photo&per_page=${registrosPorPagina}&page=${paginaActual}` 
 
     fetch(url)
         .then(respuesta => respuesta.json())
@@ -52,12 +56,19 @@ function buscarImagenes(termino){
         })
 }
 
+//generador que va a registrar la cantidad de elementos de acurdo a las paginas 
+function * crearPaginador(total){
+    for( let i = 1; i<= total ;i++){
+        yield i;
+    }
+}
+
 function calcularPaginas(total){
     return parseInt(Math.ceil(total/registrosPorPagina));
 }
 
 function mostrarImagenes(imagenes) {
-    console.log(imagenes);
+    
 
     while(resultado.firstChild){
         resultado.removeChild(resultado.firstChild);
@@ -83,4 +94,40 @@ function mostrarImagenes(imagenes) {
             </div>
             `;
     });
+    //limpiar el paginador previo 
+    limpiarPaginador();
+    //generamos el nuevo html
+    imprimirPaginador();
+} 
+
+function limpiarPaginador () {
+    
+    while (paginacionDiv.firstChild) {
+        paginacionDiv.removeChild(paginacionDiv.firstChild);
+    }
+}
+
+
+function imprimirPaginador() {
+    iterador = crearPaginador(totalPaginas);
+    //console.log(iterador.next().value);
+    while(true){
+        const {value, done} = iterador.next();
+        if(done) return;
+
+        //caso contrario, Genera un Boton por cada uno de los elementos en el generador 
+        
+        const boton = document.createElement('a');
+
+        boton.href ='#';
+        boton.dataset.pagina = value;
+        boton.textContent = value;
+        boton.classList.add('siguiente','bg-yellow-400','px-4','py-1', 'mr-2','font-bold','mb-4', 'rounded');
+        boton.onclick = () =>{
+            paginaActual = value;
+            buscarImagenes();
+        }
+
+        paginacionDiv.appendChild(boton);
+    }
 }
