@@ -43,17 +43,27 @@ function mostrarAlerta(mensaje){
     }
 }
 
-function buscarImagenes(){
+async function buscarImagenes(){
     const key ='28843211-a192f32985e751d0d7f82d4ba'; 
     const termino = document.querySelector('#termino').value;
     const url = `https://pixabay.com/api/?key=${key}&q=${termino}&image_type=photo&per_page=${registrosPorPagina}&page=${paginaActual}` 
 
-    fetch(url)
+    // con fetch().then
+    /* fetch(url)
         .then(respuesta => respuesta.json())
         .then(resultado =>{
             totalPaginas = calcularPaginas(resultado.totalHits);    
             mostrarImagenes(resultado.hits);
-        })
+        }) */
+    //con async await
+    try {
+        const respuesta = await fetch(url);
+        const resultado = await respuesta.json(); 
+        totalPaginas = calcularPaginas(resultado.totalHits);    
+        mostrarImagenes(resultado.hits);
+    } catch (error) {
+        console.log(error);
+    }    
 }
 
 //generador que va a registrar la cantidad de elementos de acurdo a las paginas 
